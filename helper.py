@@ -39,6 +39,7 @@ def maybe_download_pretrained_vgg(data_dir):
         if os.path.exists(vgg_path):
             shutil.rmtree(vgg_path)
         os.makedirs(vgg_path)
+        print("MAKE DIRS!!!")
 
         # Download vgg
         print('Downloading pre-trained vgg model...')
@@ -77,7 +78,10 @@ def gen_batch_function(data_folder, image_shape):
             for path in glob(os.path.join(data_folder, 'gt_image_2', '*_road_*.png'))}
         background_color = np.array([255, 0, 0])
 
-        random.shuffle(image_paths)
+        print('image_paths = ', image_paths[:10])
+        # TODO: Uncomment this test string
+        # random.shuffle(image_paths)
+
         for batch_i in range(0, len(image_paths), batch_size):
             images = []
             gt_images = []
@@ -109,6 +113,7 @@ def gen_test_output(sess, logits, keep_prob, image_pl, data_folder, image_shape)
     :param image_shape: Tuple - Shape of image
     :return: Output for for each test image
     """
+    num = 0
     for image_file in glob(os.path.join(data_folder, 'image_2', '*.png')):
         image = scipy.misc.imresize(scipy.misc.imread(image_file), image_shape)
 
@@ -124,17 +129,27 @@ def gen_test_output(sess, logits, keep_prob, image_pl, data_folder, image_shape)
 
         yield os.path.basename(image_file), np.array(street_im)
 
+        num += 1
+        if num > 10:
+          break
+
 
 def save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image):
     # Make folder for current run
-    output_dir = os.path.join(runs_dir, str(time.time()))
+    t_str = str(time.time())
+    output_dir = os.path.join(runs_dir, t_str)
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
     os.makedirs(output_dir)
 
+    saver = tf.train.Saver()
+    saver.save(sess, os.path.join(output_dir, '/model-' + t_str))
+
     # Run NN on test images and save them to HD
     print('Training Finished. Saving test images to: {}'.format(output_dir))
+    # TODO: Rollback training to testing
+    print("using training as a test images")
     image_outputs = gen_test_output(
-        sess, logits, keep_prob, input_image, os.path.join(data_dir, 'data_road/testing'), image_shape)
+        sess, logits, keep_prob, input_image, os.path.join(data_dir, 'data_road/training'), image_shape)
     for name, image in image_outputs:
         scipy.misc.imsave(os.path.join(output_dir, name), image)
