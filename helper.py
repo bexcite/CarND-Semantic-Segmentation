@@ -143,7 +143,7 @@ def save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_p
     os.makedirs(output_dir)
 
     saver = tf.train.Saver()
-    saver.save(sess, os.path.join(output_dir, '/model-' + t_str))
+    saver.save(sess, os.path.join(output_dir, 'model-' + t_str))
 
     # Run NN on test images and save them to HD
     print('Training Finished. Saving test images to: {}'.format(output_dir))
