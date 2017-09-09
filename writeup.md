@@ -2,11 +2,13 @@
 
 ### Training
 
-Training parameterss for FCN was selected as: `batch_size=4`, `epochs=25`. As an optimizer was selected `AdamOptimizer` with learning rate `lr=0.001`. Interestingly that on bigger batch size like 10 or 20 model don't show any meaningful segmentation results (at least within first 25 epochs)
+Training parameterss for FCN was selected as: `batch_size=3`, `epochs=100`. As an optimizer was selected `AdamOptimizer` with learning rate `lr=0.001`. Interestingly that on bigger batch size like 10 or 20 model don't show any meaningful segmentation results (at least within first 25 epochs)
+
+Trained with NVidia 1080 Ti for around 50 minutes.
 
 ### Results
 
-#### Tests Table for some parameters
+#### Tests Table for various parameters
 
 Freeze Gradient | Batch Size | Epochs | Shuffle | Loss
 ---             | ---        | ---    | ---     | ---
@@ -22,7 +24,7 @@ Freeze Gradient | Batch Size | Epochs | Shuffle | Loss
 0               | 4          | 50     | 1       | 0.009
 
 
-#### Testing Images Example Predictions (for best params)
+#### Select Testing Images Predictions (for best params)
 
 Some image results from the final selected parameters.
 
