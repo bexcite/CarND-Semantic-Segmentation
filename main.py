@@ -60,7 +60,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     # TODO: Implement function
 
     # Freeze weights
-    vgg_layer3_out = tf.stop_gradient(vgg_layer3_out)
+    # vgg_layer3_out = tf.stop_gradient(vgg_layer3_out)
 
     conv_layer7 = tf.layers.conv2d(vgg_layer7_out, num_classes, 1, padding='same',
         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
@@ -80,7 +80,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
 
     output = tf.layers.conv2d_transpose(skip2, num_classes, 16, strides=(8,8), padding='same')
 
-    tf.Print(output, [tf.shape(output)])
+    # output = tf.Print(output, [tf.shape(output)])
 
     return output
 # tests.test_layers(layers)
@@ -97,9 +97,18 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     """
     # TODO: Implement function
     logits = tf.reshape(nn_last_layer, (-1, num_classes))
+
+    # logits = tf.Print(logits, [logits], "Logits: ")
+
     labels = tf.reshape(correct_label, (-1, num_classes))
 
-    cross_entropy_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
+    # labels = tf.Print(labels, [labels], "Labels: ")
+
+    sm_ce = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels)
+
+    # sm_ce = tf.Print(sm_ce, [sm_ce], "SM and CE: ")
+
+    cross_entropy_loss = tf.reduce_mean(sm_ce)
 
     optimizer = tf.train.AdamOptimizer(learning_rate = learning_rate)
     train_op = optimizer.minimize(cross_entropy_loss)
@@ -129,21 +138,16 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     sess.run(tf.global_variables_initializer())
     sess.run(tf.local_variables_initializer())
 
-    MAX_N = 10
-
     for i in tqdm(range(epochs)):
       print('Running epoch:', i)
       total_loss = 0
       samples_n = 0
       for bX, by in get_batches_fn(batch_size):
-        if samples_n >= MAX_N:
-          print('MAX REACHED')
-          break
         _, loss = sess.run([train_op, cross_entropy_loss], feed_dict={input_image: bX, keep_prob:0.8, correct_label:by})
         # loss = 1
         total_loss += loss
         samples_n += len(bX)
-        print('l = ', loss, ', n = ', samples_n)
+        # print('l = ', loss, ', n = ', samples_n)
       print("loss = ", total_loss/samples_n)
 
 
@@ -165,8 +169,8 @@ def run():
     #  https://www.cityscapes-dataset.com/
 
     lr = 0.001
-    epochs = 4
-    batch_size = 10
+    epochs = 100
+    batch_size = 3
 
     with tf.Session() as sess:
         # Path to vgg model
